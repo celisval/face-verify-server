@@ -29,7 +29,7 @@ RUN node download-models.js
 EXPOSE 3001
 
 # Health check (every 30 s, 10 s timeout, 3 retries, start after 15 s)
-HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=15s \
+HEALTHCHECK --interval=30s --timeout=10s --retries=5 --start-period=30s \
   CMD node -e "const http=require('http');const r=http.get('http://localhost:3001/health',res=>{let d='';res.on('data',c=>d+=c);res.on('end',()=>{const j=JSON.parse(d);process.exit(j.status==='ok'&&j.modelsLoaded?0:1)})});r.on('error',()=>process.exit(1));r.setTimeout(5000,()=>{r.destroy();process.exit(1)})"
 
 CMD ["node", "server.js"]

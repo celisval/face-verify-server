@@ -8,6 +8,7 @@
     "download-models": "node download-models.js"
   },
   "dependencies": {
+    "@tensorflow/tfjs-node": "^4.22.0",
     "@vladmandic/face-api": "^1.7.14",
     "canvas": "^2.11.2",
     "cors": "^2.8.5",
