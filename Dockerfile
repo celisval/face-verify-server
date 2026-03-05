@@ -25,11 +25,12 @@ COPY server.js download-models.js ./
 # Download model weights at build time (baked into the image)
 RUN node download-models.js
 
-# Expose the server port
+# Default port (Coolify may override via PORT env var)
+ENV PORT=3001
 EXPOSE 3001
 
-# Health check (every 30 s, 10 s timeout, 3 retries, start after 15 s)
-HEALTHCHECK --interval=30s --timeout=10s --retries=5 --start-period=30s \
-  CMD node -e "const http=require('http');const r=http.get('http://localhost:3001/health',res=>{let d='';res.on('data',c=>d+=c);res.on('end',()=>{const j=JSON.parse(d);process.exit(j.status==='ok'&&j.modelsLoaded?0:1)})});r.on('error',()=>process.exit(1));r.setTimeout(5000,()=>{r.destroy();process.exit(1)})"
+# Health check — reads PORT env at runtime so it matches the server
+HEALTHCHECK --interval=30s --timeout=10s --retries=5 --start-period=60s \
+  CMD node -e "const p=process.env.PORT||3001;const http=require('http');const r=http.get('http://localhost:'+p+'/health',res=>{let d='';res.on('data',c=>d+=c);res.on('end',()=>{const j=JSON.parse(d);process.exit(j.status==='ok'&&j.modelsLoaded?0:1)})});r.on('error',()=>process.exit(1));r.setTimeout(5000,()=>{r.destroy();process.exit(1)})"
 
 CMD ["node", "server.js"]
